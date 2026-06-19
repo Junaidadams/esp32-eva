@@ -19,7 +19,7 @@ for filename in os.listdir(input_folder):
         pixels = list(img.getdata())
         
         for name, fn in permutations.items():
-            outname = os.path.splitext(filename)[0] + f"_{name}.bin"
+            outname = os.path.splitext(filename)[0] + f".bin"
             with open(os.path.join(output_folder, outname), "wb") as f:
                 for r, g, b in pixels:
                     f.write(struct.pack("<H", fn(r, g, b)))
