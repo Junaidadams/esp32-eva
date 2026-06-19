@@ -1,12 +1,30 @@
 #pragma once
 #include <TFT_22_ILI9225.h>
+#include <SD.h>
+#include "pins.h"
 
-extern TFT_22_ILI9225 tft;  // tells the header the tft object exists elsewhere
+extern TFT_22_ILI9225 tft;
 
-void drawRGB565(int16_t x, int16_t y, const uint16_t *img, int16_t w, int16_t h) {
-  for (int16_t row = 0; row < h; row++) {
-    for (int16_t col = 0; col < w; col++) {
-      tft.drawPixel(x + col, y + row, img[row * w + col]);
+// ✅ inline prevents duplicate definition
+inline void drawImageFromSD(const char* path) {
+  File f = SD.open(path);
+  if (!f) {
+    Serial.print("Failed to open: ");
+    Serial.println(path);
+    tft.fillRectangle(0, 0, 175, 219, COLOR_BLACK);
+    tft.setFont(Terminal6x8);
+    tft.drawText(10, 100, "File not found!", COLOR_RED);
+    return;
+  }
+
+  uint16_t lineBuffer[176];
+
+  for (int16_t row = 0; row < 220; row++) {
+    f.read((uint8_t*)lineBuffer, 176 * 2);
+    for (int16_t col = 0; col < 176; col++) {
+      tft.drawPixel(col, row, lineBuffer[col]);
     }
   }
+
+  f.close();
 }
